@@ -15,4 +15,9 @@ public class QuizCreatorMainView : MonoBehaviour
     public GameObject WarningPopupPanel;
     public TMP_Text WarningPopupText;
     public Button CloseWarningPopupButton;
+
+    [Header("Ekran Startowy (Wczytywanie)")]
+    public GameObject StartScreenPanel;
+    public Transform AvailableQuizzesContainer;
+    public Button CreateNewQuizButton;
 }
