@@ -24,26 +24,36 @@ public class QuizCreatorPresenter : MonoBehaviour
         BindMainEvents();
     }
 
+    // PREZENTER
     private void BindMainEvents()
     {
         MainView.QuizNameInput.onValueChanged.AddListener(newName =>
         {
             _currentQuiz.QuizName = newName;
+            UpdateValidationState();
         });
 
         MainView.AddMultiChoiceButton.onClick.AddListener(() =>
         {
             _currentQuiz.Questions.Add(new MultipleChoiceQuestion());
             RefreshQuestionsList();
+            UpdateValidationState();
         });
 
         MainView.AddTrueFalseButton.onClick.AddListener(() =>
         {
             _currentQuiz.Questions.Add(new TrueFalseQuestion("", true));
             RefreshQuestionsList();
+            UpdateValidationState();
         });
 
-        MainView.SaveQuizButton.onClick.AddListener(SaveCurrentQuiz);
+        // VIEW
+        MainView.CloseWarningPopupButton.onClick.AddListener(() =>
+        {
+            MainView.WarningPopupPanel.SetActive(false);
+        });
+
+        MainView.SaveQuizButton.onClick.AddListener(TrySaveQuiz);
     }
 
     private void RefreshQuestionsList()
@@ -85,6 +95,7 @@ public class QuizCreatorPresenter : MonoBehaviour
         {
             _currentQuiz.Questions.Remove(questionModel);
             RefreshQuestionsList();
+            UpdateValidationState();
         });
 
         // MODEL
@@ -132,8 +143,8 @@ public class QuizCreatorPresenter : MonoBehaviour
 
             answerView.RemoveAnswerButton.interactable = questionModel.Answers.Count > 2;
 
-            answerView.AnswerTextInput.onValueChanged.AddListener(val => currentAnswer.Text = val);
-            answerView.IsCorrectToggle.onValueChanged.AddListener(isOn => currentAnswer.IsCorrect = isOn);
+            answerView.AnswerTextInput.onValueChanged.AddListener(val => { currentAnswer.Text = val});
+            answerView.IsCorrectToggle.onValueChanged.AddListener(isOn => { currentAnswer.IsCorrect = isOn; UpdateValidationState(); });
 
             answerView.RemoveAnswerButton.onClick.AddListener(() =>
             {
@@ -142,6 +153,7 @@ public class QuizCreatorPresenter : MonoBehaviour
 
                 // PREZENTER
                 RefreshAnswersList(questionModel, view);
+                UpdateValidationState();
             });
         }
 
@@ -176,13 +188,87 @@ public class QuizCreatorPresenter : MonoBehaviour
         {
             _currentQuiz.Questions.Remove(questionModel);
             RefreshQuestionsList();
+            UpdateValidationState();
         });
     }
 
     private void SaveCurrentQuiz()
     {
-        // TODO: Walidacja przed zapisem
         _repository.SaveQuizToFile(_currentQuiz);
         Debug.Log("Zapisano quiz z nowym interfejsem Google Forms!");
     }
-}
+
+    private void UpdateValidationState()
+    {
+        // MODEL
+        bool isCriticalStateValid = true;
+
+        if (string.IsNullOrWhiteSpace(_currentQuiz.QuizName))
+        {
+            isCriticalStateValid = false;
+        }
+
+        foreach (var question in _currentQuiz.Questions)
+        {
+            if (question is MultipleChoiceQuestion mcQuestion)
+            {
+                bool hasAtLeastOneCorrect = false;
+                foreach (var answer in mcQuestion.Answers)
+                {
+                    if (answer.IsCorrect) hasAtLeastOneCorrect = true;
+                }
+
+                if (!hasAtLeastOneCorrect) isCriticalStateValid = false;
+            }
+        }
+
+        // VIEW
+        MainView.SaveQuizButton.interactable = isCriticalStateValid;
+    }
+
+    private void TrySaveQuiz()
+    {
+        // MODEL
+        string errorMessage = "";
+
+        if (_currentQuiz.Questions.Count == 0)
+        {
+            errorMessage = "Quiz musi zawieraæ przynajmniej jedno pytanie!";
+        }
+        else
+        {
+            for (int i = 0; i < _currentQuiz.Questions.Count; i++)
+            {
+                var q = _currentQuiz.Questions[i];
+                if (string.IsNullOrWhiteSpace(q.QuestionText))
+                {
+                    errorMessage = $"Pytanie nr {i + 1} nie ma wpisanej treœci!";
+                    break;
+                }
+
+                foreach (var a in q.Answers)
+                {
+                    if (string.IsNullOrWhiteSpace(a.Text))
+                    {
+                        errorMessage = $"Pytanie nr {i + 1} zawiera odpowiedŸ bez wpisanej treœci!";
+                        break;
+                    }
+                }
+
+                if (errorMessage != "") break;
+            }
+        }
+
+        // PREZENTER / VIEW
+        if (errorMessage != "")
+        {
+            MainView.WarningPopupText.text = errorMessage;
+            MainView.WarningPopupPanel.SetActive(true);
+        }
+        else
+        {
+            _repository.SaveQuizToFile(_currentQuiz);
+            Debug.Log("Zapisano quiz! Walidacja zakoñczona sukcesem.");
+        }
+    }
+    }

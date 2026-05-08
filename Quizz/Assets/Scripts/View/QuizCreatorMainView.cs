@@ -10,4 +10,9 @@ public class QuizCreatorMainView : MonoBehaviour
     public Button AddMultiChoiceButton;
     public Button AddTrueFalseButton;
     public Button SaveQuizButton;
+
+    [Header("Popup Walidacji")]
+    public GameObject WarningPopupPanel;
+    public TMP_Text WarningPopupText;
+    public Button CloseWarningPopupButton;
 }
