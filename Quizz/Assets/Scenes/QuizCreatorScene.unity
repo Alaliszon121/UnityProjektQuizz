@@ -1898,6 +1898,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efaf4e7ddde1fe9428eaefb1ec4820bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  AnswerEditorPrefab: {fileID: 1909864967302655828, guid: d90f60ebbeb910a4dbd9eca562af08d4, type: 3}
   MainView: {fileID: 505522634}
   MultiChoiceEditorPrefab: {fileID: 8086499664228800121, guid: 9d01b46630065824ba5f8c8f94e2d918, type: 3}
   TrueFalseEditorPrefab: {fileID: 8086499664228800121, guid: 6067325a699d5d8449a6000c47bdafda, type: 3}

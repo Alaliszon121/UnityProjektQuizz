@@ -3,6 +3,8 @@ using TMPro;
 
 public class QuizCreatorPresenter : MonoBehaviour
 {
+    public GameObject AnswerEditorPrefab;
+
     [Header("Referencje MVP")]
     public QuizCreatorMainView MainView;
     private QuizRepository _repository;
@@ -66,6 +68,7 @@ public class QuizCreatorPresenter : MonoBehaviour
 
     private void CreateMultiChoiceEditor(MultipleChoiceQuestion questionModel)
     {
+        // PREZENTER
         GameObject editorObj = Instantiate(MultiChoiceEditorPrefab, MainView.QuestionsListContainer);
         MultipleChoiceEditorView view = editorObj.GetComponent<MultipleChoiceEditorView>();
 
@@ -84,9 +87,67 @@ public class QuizCreatorPresenter : MonoBehaviour
             RefreshQuestionsList();
         });
 
-        // TODO Task 8: Obs≥uga przycisku "Dodaj Odpowiedü" w view.AddAnswerButton
+        // MODEL
+        if (questionModel.Answers.Count < 2)
+        {
+            questionModel.Answers.Add(new Answer("", false));
+            questionModel.Answers.Add(new Answer("", false));
+        }
+
+        // PREZENTER
+        RefreshAnswersList(questionModel, view);
+
+        view.AddAnswerButton.onClick.AddListener(() =>
+        {
+            if (questionModel.Answers.Count < 10)
+            {
+                // MODEL
+                questionModel.Answers.Add(new Answer("", false));
+
+                // PREZENTER
+                RefreshAnswersList(questionModel, view);
+            }
+        });
     }
 
+    private void RefreshAnswersList(MultipleChoiceQuestion questionModel, MultipleChoiceEditorView view)
+    {
+        // VIEW
+        foreach (Transform child in view.AnswersContainer)
+        {
+            Destroy(child.gameObject);
+        }
+
+        // PREZENTER
+        for (int i = 0; i < questionModel.Answers.Count; i++)
+        {
+            Answer currentAnswer = questionModel.Answers[i];
+
+            GameObject answerObj = Instantiate(AnswerEditorPrefab, view.AnswersContainer);
+            AnswerEditorView answerView = answerObj.GetComponent<AnswerEditorView>();
+
+            // VIEW
+            answerView.AnswerTextInput.text = currentAnswer.Text;
+            answerView.IsCorrectToggle.isOn = currentAnswer.IsCorrect;
+
+            answerView.RemoveAnswerButton.interactable = questionModel.Answers.Count > 2;
+
+            answerView.AnswerTextInput.onValueChanged.AddListener(val => currentAnswer.Text = val);
+            answerView.IsCorrectToggle.onValueChanged.AddListener(isOn => currentAnswer.IsCorrect = isOn);
+
+            answerView.RemoveAnswerButton.onClick.AddListener(() =>
+            {
+                // MODEL
+                questionModel.Answers.Remove(currentAnswer);
+
+                // PREZENTER
+                RefreshAnswersList(questionModel, view);
+            });
+        }
+
+        // VIEW
+        view.AddAnswerButton.interactable = questionModel.Answers.Count < 10;
+    }
     private void CreateTrueFalseEditor(TrueFalseQuestion questionModel)
     {
         // PREZENTER
