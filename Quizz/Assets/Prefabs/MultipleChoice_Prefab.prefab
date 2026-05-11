@@ -2213,6 +2213,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8160857011037122906}
   - component: {fileID: 6370612029990257627}
+  - component: {fileID: 1948177914672845252}
   m_Layer: 5
   m_Name: Content
   m_TagString: Untagged
@@ -2237,7 +2238,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 1000}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &6370612029990257627
 MonoBehaviour:
@@ -2265,6 +2266,20 @@ MonoBehaviour:
   m_ChildScaleWidth: 1
   m_ChildScaleHeight: 1
   m_ReverseArrangement: 0
+--- !u!114 &1948177914672845252
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7164871058146270706}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_HorizontalFit: 0
+  m_VerticalFit: 2
 --- !u!1 &7316616664891555985
 GameObject:
   m_ObjectHideFlags: 0
@@ -2486,5 +2501,6 @@ MonoBehaviour:
   QuestionTextInput: {fileID: 6884484442236065019}
   MultiplierInput: {fileID: 7936516116546125506}
   RemoveQuestionButton: {fileID: 1287318099430732754}
-  AnswersContainer: {fileID: 8160857011037122906}
   AddAnswerButton: {fileID: 646863459486372043}
+  AnswersContainer: {fileID: 8160857011037122906}
+  AnswerEditorPrefab: {fileID: 1909864967302655828, guid: d90f60ebbeb910a4dbd9eca562af08d4, type: 3}

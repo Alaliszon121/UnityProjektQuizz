@@ -1,138 +1,93 @@
-using UnityEngine;
-using TMPro;
+using System;
+using System.Collections.Generic;
 
-public class QuizCreatorPresenter : MonoBehaviour
+public class QuizCreatorPresenter
 {
-    // VIEW
-    [Header("Referencje MVP")]
-    public QuizCreatorMainView MainView;
-
-    // MODEL
-    private QuizRepository _repository;
+    private readonly IQuizCreatorMainView _mainView;
+    private readonly QuizRepository _repository;
     private Quiz _currentQuiz;
 
-    // VIEW
-    [Header("Prefaby")]
-    public GameObject MultiChoiceEditorPrefab;
-    public GameObject TrueFalseEditorPrefab;
-    public GameObject AnswerEditorPrefab;
-    public GameObject LoadQuizItemPrefab;
-
-    private void Start()
+    public QuizCreatorPresenter(IQuizCreatorMainView mainView, QuizRepository repository)
     {
-        // PREZENTER
-        _repository = new QuizRepository();
-
+        _mainView = mainView;
+        _repository = repository;
         BindMainEvents();
-        InitializeStartScreen();
+    }
+
+    public void Start()
+    {
+        _mainView.ShowStartScreen(true);
+        RefreshAvailableQuizzes();
+    }
+
+    private void RefreshAvailableQuizzes()
+    {
+        _mainView.ClearAvailableQuizzes();
+        List<Quiz> availableQuizzes = _repository.LoadAllQuizzes();
+
+        foreach (Quiz quiz in availableQuizzes)
+        {
+            ILoadQuizItemView itemView = _mainView.CreateLoadQuizItem();
+            itemView.QuizName = quiz.QuizName;
+            itemView.OnLoadClicked += () => LoadExistingQuiz(quiz);
+        }
     }
 
     private void BindMainEvents()
     {
-        // VIEW / PREZENTER
-        MainView.QuizNameInput.onValueChanged.AddListener(newName =>
+        _mainView.OnQuizNameChanged += name =>
         {
-            // MODEL
-            _currentQuiz.QuizName = newName;
-            // PREZENTER
+            _currentQuiz.QuizName = name;
             UpdateValidationState();
-        });
+        };
 
-        MainView.AddMultiChoiceButton.onClick.AddListener(() =>
+        _mainView.OnAddMultiChoiceClicked += () =>
         {
-            // MODEL
-            _currentQuiz.Questions.Add(new MultipleChoiceQuestion());
-            // PREZENTER
+            MultipleChoiceQuestion newQuestion = new MultipleChoiceQuestion();
+            _currentQuiz.Questions.Add(newQuestion);
             RefreshQuestionsList();
             UpdateValidationState();
-        });
+        };
 
-        MainView.AddTrueFalseButton.onClick.AddListener(() =>
+        _mainView.OnAddTrueFalseClicked += () =>
         {
-            // MODEL
-            _currentQuiz.Questions.Add(new TrueFalseQuestion("", true));
-            // PREZENTER
+            TrueFalseQuestion newQuestion = new TrueFalseQuestion("", true);
+            _currentQuiz.Questions.Add(newQuestion);
             RefreshQuestionsList();
             UpdateValidationState();
-        });
+        };
 
-        MainView.CloseWarningPopupButton.onClick.AddListener(() =>
+        _mainView.OnCloseWarningClicked += () =>
         {
-            // VIEW
-            MainView.WarningPopupPanel.SetActive(false);
-        });
+            _mainView.HideWarning();
+        };
 
-        MainView.SaveQuizButton.onClick.AddListener(TrySaveQuiz);
-    }
-
-    public void InitializeStartScreen()
-    {
-        // VIEW
-        MainView.StartScreenPanel.SetActive(true);
-
-        foreach (Transform child in MainView.AvailableQuizzesContainer)
-        {
-            Destroy(child.gameObject);
-        }
-
-        // MODEL
-        var availableQuizzes = _repository.LoadAllQuizzes();
-
-        // PREZENTER
-        foreach (var quiz in availableQuizzes)
-        {
-            // VIEW
-            GameObject itemObj = Instantiate(LoadQuizItemPrefab, MainView.AvailableQuizzesContainer);
-            LoadQuizItemView itemView = itemObj.GetComponent<LoadQuizItemView>();
-
-            itemView.QuizNameText.text = quiz.QuizName;
-
-            // PREZENTER
-            itemView.LoadButton.onClick.AddListener(() => LoadExistingQuiz(quiz));
-        }
-
-        // PREZENTER
-        MainView.CreateNewQuizButton.onClick.RemoveAllListeners();
-        MainView.CreateNewQuizButton.onClick.AddListener(CreateNewQuiz);
+        _mainView.OnSaveQuizClicked += TrySaveQuiz;
+        _mainView.OnCreateNewQuizClicked += CreateNewQuiz;
     }
 
     private void CreateNewQuiz()
     {
-        // MODEL
         _currentQuiz = new Quiz("");
-
-        // VIEW
-        MainView.QuizNameInput.text = "";
-        MainView.StartScreenPanel.SetActive(false);
-
-        // PREZENTER
-        RefreshQuestionsList();
+        _mainView.QuizName = "";
+        _mainView.ShowStartScreen(false);
+        _mainView.ClearQuestionsList();
         UpdateValidationState();
     }
 
     private void LoadExistingQuiz(Quiz loadedQuiz)
     {
-        // MODEL
         _currentQuiz = loadedQuiz;
-
-        // VIEW
-        MainView.QuizNameInput.text = _currentQuiz.QuizName;
-        MainView.StartScreenPanel.SetActive(false);
-
-        // PREZENTER
+        _mainView.QuizName = _currentQuiz.QuizName;
+        _mainView.ShowStartScreen(false);
         RefreshQuestionsList();
         UpdateValidationState();
     }
 
     private void RefreshQuestionsList()
     {
-        // VIEW
-        foreach (Transform child in MainView.QuestionsListContainer)
-        {
-            Destroy(child.gameObject);
-        }
+        _mainView.ClearQuestionsList();
 
-        // PREZENTER
         foreach (Question question in _currentQuiz.Questions)
         {
             if (question is MultipleChoiceQuestion multiQuestion)
@@ -148,138 +103,103 @@ public class QuizCreatorPresenter : MonoBehaviour
 
     private void CreateMultiChoiceEditor(MultipleChoiceQuestion questionModel)
     {
-        // PREZENTER
-        GameObject editorObj = Instantiate(MultiChoiceEditorPrefab, MainView.QuestionsListContainer);
-        MultipleChoiceEditorView view = editorObj.GetComponent<MultipleChoiceEditorView>();
+        IMultipleChoiceEditorView view = _mainView.CreateMultiChoiceEditor();
 
-        // VIEW
-        view.QuestionTextInput.text = questionModel.QuestionText;
-        view.MultiplierInput.text = questionModel.Multiplier.ToString();
+        view.QuestionText = questionModel.QuestionText;
+        view.MultiplierText = questionModel.Multiplier.ToString();
 
-        // PREZENTER
-        view.QuestionTextInput.onValueChanged.AddListener(val => questionModel.QuestionText = val);
-        view.MultiplierInput.onValueChanged.AddListener(val =>
+        view.OnQuestionTextChanged += val => questionModel.QuestionText = val;
+        view.OnMultiplierChanged += val =>
         {
             if (float.TryParse(val, out float result)) questionModel.Multiplier = result;
-        });
+        };
 
-        view.RemoveQuestionButton.onClick.AddListener(() =>
+        view.OnRemoveQuestionClicked += () =>
         {
-            // MODEL
             _currentQuiz.Questions.Remove(questionModel);
-            // PREZENTER
-            RefreshQuestionsList();
+            view.DestroyView();
             UpdateValidationState();
-        });
+        };
 
-        // MODEL
         if (questionModel.Answers.Count < 2)
         {
             questionModel.Answers.Add(new Answer("", false));
             questionModel.Answers.Add(new Answer("", false));
         }
 
-        // PREZENTER
         RefreshAnswersList(questionModel, view);
 
-        view.AddAnswerButton.onClick.AddListener(() =>
+        view.OnAddAnswerClicked += () =>
         {
             if (questionModel.Answers.Count < 10)
             {
-                // MODEL
                 questionModel.Answers.Add(new Answer("", false));
-                // PREZENTER
                 RefreshAnswersList(questionModel, view);
             }
-        });
+        };
     }
 
-    private void RefreshAnswersList(MultipleChoiceQuestion questionModel, MultipleChoiceEditorView view)
+    private void RefreshAnswersList(MultipleChoiceQuestion questionModel, IMultipleChoiceEditorView view)
     {
-        // VIEW
-        foreach (Transform child in view.AnswersContainer)
+        view.ClearAnswers();
+
+        foreach (Answer currentAnswer in questionModel.Answers)
         {
-            Destroy(child.gameObject);
-        }
+            IAnswerEditorView answerView = view.CreateAnswerEditor();
 
-        // PREZENTER
-        for (int i = 0; i < questionModel.Answers.Count; i++)
-        {
-            Answer currentAnswer = questionModel.Answers[i];
+            answerView.AnswerText = currentAnswer.Text;
+            answerView.IsCorrect = currentAnswer.IsCorrect;
+            answerView.IsRemoveButtonEnabled = questionModel.Answers.Count > 2;
 
-            // VIEW
-            GameObject answerObj = Instantiate(AnswerEditorPrefab, view.AnswersContainer);
-            AnswerEditorView answerView = answerObj.GetComponent<AnswerEditorView>();
-
-            answerView.AnswerTextInput.text = currentAnswer.Text;
-            answerView.IsCorrectToggle.isOn = currentAnswer.IsCorrect;
-
-            answerView.RemoveAnswerButton.interactable = questionModel.Answers.Count > 2;
-
-            // PREZENTER
-            answerView.AnswerTextInput.onValueChanged.AddListener(val => currentAnswer.Text = val);
-            answerView.IsCorrectToggle.onValueChanged.AddListener(isOn =>
+            answerView.OnAnswerTextChanged += val => currentAnswer.Text = val;
+            answerView.OnIsCorrectChanged += isOn =>
             {
-                // MODEL
                 currentAnswer.IsCorrect = isOn;
-                // PREZENTER
                 UpdateValidationState();
-            });
+            };
 
-            answerView.RemoveAnswerButton.onClick.AddListener(() =>
+            answerView.OnRemoveAnswerClicked += () =>
             {
-                // MODEL
                 questionModel.Answers.Remove(currentAnswer);
-                // PREZENTER
                 RefreshAnswersList(questionModel, view);
                 UpdateValidationState();
-            });
+            };
         }
 
-        // VIEW
-        view.AddAnswerButton.interactable = questionModel.Answers.Count < 10;
+        view.IsAddAnswerButtonEnabled = questionModel.Answers.Count < 10;
     }
 
     private void CreateTrueFalseEditor(TrueFalseQuestion questionModel)
     {
-        // PREZENTER
-        GameObject editorObj = Instantiate(TrueFalseEditorPrefab, MainView.QuestionsListContainer);
-        TrueFalseEditorView view = editorObj.GetComponent<TrueFalseEditorView>();
+        ITrueFalseEditorView view = _mainView.CreateTrueFalseEditor();
 
-        // VIEW
-        view.QuestionTextInput.text = questionModel.QuestionText;
-        view.MultiplierInput.text = questionModel.Multiplier.ToString();
-        view.IsTrueToggle.isOn = questionModel.Answers[0].IsCorrect;
+        view.QuestionText = questionModel.QuestionText;
+        view.MultiplierText = questionModel.Multiplier.ToString();
+        view.IsTrue = questionModel.Answers[0].IsCorrect;
 
-        // PREZENTER
-        view.QuestionTextInput.onValueChanged.AddListener(val => questionModel.QuestionText = val);
-        view.MultiplierInput.onValueChanged.AddListener(val =>
+        view.OnQuestionTextChanged += val => questionModel.QuestionText = val;
+        view.OnMultiplierChanged += val =>
         {
             if (float.TryParse(val, out float result)) questionModel.Multiplier = result;
-        });
+        };
 
-        view.IsTrueToggle.onValueChanged.AddListener(isOn =>
+        view.OnIsTrueChanged += isOn =>
         {
-            // MODEL
             questionModel.Answers[0].IsCorrect = isOn;
             questionModel.Answers[1].IsCorrect = !isOn;
-            // PREZENTER
             UpdateValidationState();
-        });
+        };
 
-        view.RemoveQuestionButton.onClick.AddListener(() =>
+        view.OnRemoveQuestionClicked += () =>
         {
-            // MODEL
             _currentQuiz.Questions.Remove(questionModel);
-            // PREZENTER
-            RefreshQuestionsList();
+            view.DestroyView();
             UpdateValidationState();
-        });
+        };
     }
 
     private void UpdateValidationState()
     {
-        // MODEL
         bool isCriticalStateValid = true;
 
         if (string.IsNullOrWhiteSpace(_currentQuiz.QuizName))
@@ -301,13 +221,11 @@ public class QuizCreatorPresenter : MonoBehaviour
             }
         }
 
-        // VIEW
-        MainView.SaveQuizButton.interactable = isCriticalStateValid;
+        _mainView.IsSaveButtonEnabled = isCriticalStateValid;
     }
 
     private void TrySaveQuiz()
     {
-        // MODEL
         string errorMessage = "";
 
         if (_currentQuiz.Questions.Count == 0)
@@ -338,18 +256,13 @@ public class QuizCreatorPresenter : MonoBehaviour
             }
         }
 
-        // PREZENTER
         if (errorMessage != "")
         {
-            // VIEW
-            MainView.WarningPopupText.text = errorMessage;
-            MainView.WarningPopupPanel.SetActive(true);
+            _mainView.ShowWarning(errorMessage);
         }
         else
         {
-            // MODEL
             _repository.SaveQuizToFile(_currentQuiz);
-            Debug.Log("Zapisano quiz! Walidacja zakoñczona sukcesem.");
         }
     }
 }
