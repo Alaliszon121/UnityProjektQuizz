@@ -426,7 +426,7 @@ MonoBehaviour:
   m_CharacterValidation: 0
   m_RegexValue: 
   m_GlobalPointSize: 14
-  m_CharacterLimit: 0
+  m_CharacterLimit: 58
   m_OnEndEdit:
     m_PersistentCalls:
       m_Calls: []
@@ -1258,7 +1258,7 @@ MonoBehaviour:
   m_Elasticity: 0.1
   m_Inertia: 1
   m_DecelerationRate: 0.135
-  m_ScrollSensitivity: 3
+  m_ScrollSensitivity: 5
   m_Viewport: {fileID: 6435473173952457954}
   m_HorizontalScrollbar: {fileID: 0}
   m_VerticalScrollbar: {fileID: 5712747001075302932}
@@ -1281,6 +1281,7 @@ GameObject:
   - component: {fileID: 9077579279840425587}
   - component: {fileID: 6090167316507627879}
   - component: {fileID: 7936516116546125506}
+  - component: {fileID: 422561766372249297}
   - component: {fileID: 4100328350181121594}
   m_Layer: 5
   m_Name: MnoznikInputField
@@ -1460,6 +1461,19 @@ MonoBehaviour:
   isAlert: 0
   m_InputValidator: {fileID: 0}
   m_ShouldActivateOnSelect: 1
+--- !u!114 &422561766372249297
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3145703847788989028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c4832895785844439fab69f27b62a69, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inputField: {fileID: 7936516116546125506}
 --- !u!114 &4100328350181121594
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -622,7 +622,7 @@ MonoBehaviour:
   m_CharacterValidation: 0
   m_RegexValue: 
   m_GlobalPointSize: 14
-  m_CharacterLimit: 0
+  m_CharacterLimit: 58
   m_OnEndEdit:
     m_PersistentCalls:
       m_Calls: []
@@ -1318,6 +1318,7 @@ GameObject:
   - component: {fileID: 4648652563539162726}
   - component: {fileID: 6509634753167535168}
   - component: {fileID: 5974251364308240139}
+  - component: {fileID: 3148517918992314557}
   - component: {fileID: 7797038288555831401}
   - component: {fileID: 5039106651698287460}
   m_Layer: 5
@@ -1385,6 +1386,19 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &3148517918992314557
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5196576909618539440}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c4832895785844439fab69f27b62a69, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inputField: {fileID: 7797038288555831401}
 --- !u!114 &7797038288555831401
 MonoBehaviour:
   m_ObjectHideFlags: 0

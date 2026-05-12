@@ -34,8 +34,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.0112, y: 266.08}
-  m_SizeDelta: {x: 1873.7, y: 163.4871}
+  m_AnchoredPosition: {x: -0.0112, y: 306.08}
+  m_SizeDelta: {x: 1873.7, y: 83.4871}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2331489490368890241
 CanvasRenderer:
@@ -65,9 +65,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'QuestionLabel
-
-'
+  m_text: "Przyk\u0142adowa d\u0142uga d\u0142uga d\u0142uga odpowied\u017A na zadane
+    pytanie"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 2c92397c31af2a547821633f9e6919ab, type: 2}
   m_sharedMaterial: {fileID: -4874940873276487543, guid: 2c92397c31af2a547821633f9e6919ab, type: 2}
@@ -264,8 +263,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.011219, y: -81.744}
-  m_SizeDelta: {x: 1854, y: 532.16}
+  m_AnchoredPosition: {x: -0.011219, y: -41.74382}
+  m_SizeDelta: {x: 1854, y: 612.16}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &5497632580672118445
 MonoBehaviour:
@@ -287,7 +286,7 @@ MonoBehaviour:
   m_ChildAlignment: 0
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 900, y: 150}
+  m_CellSize: {x: 900, y: 120}
   m_Spacing: {x: 50, y: 0}
   m_Constraint: 0
   m_ConstraintCount: 2
