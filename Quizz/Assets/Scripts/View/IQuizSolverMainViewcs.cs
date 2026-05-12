@@ -3,14 +3,15 @@ using System.Collections.Generic;
 
 public interface IQuizSolverMainView
 {
-    event Action<int> OnQuizSelected;
     event Action OnNextQuestionClicked;
     event Action OnPreviousQuestionClicked;
     event Action OnFinishQuizClicked;
     event Action OnReturnToMenuClicked;
+    event Action OnContinueSummaryAnimationRequested;
+    event Action<float> OnUpdateTick;
 
-    void SetAvailableQuizzes(List<string> quizNames);
-    int GetSelectedQuizIndex();
+    void ClearAvailableQuizzes();
+    ISolverQuizItemView CreateQuizItem();
 
     void ShowStartScreen(bool show);
     void ShowSolvingScreen(bool show);
@@ -19,10 +20,25 @@ public interface IQuizSolverMainView
     void UpdateProgressIndicator(string progressText);
     void SetNavigationButtonsState(bool canGoBack, bool isLastQuestion);
     void ClearQuestionArea();
-    void SetSummaryData(string scoreText, string detailedReview);
+
+    void PrepareSummaryView(float maxScore, string timeTakenText);
+    ISummaryItemView CreateSummaryItem();
+    void UpdateCurrentScore(float currentScore, float maxScore);
+    void OnSummaryAnimationFinished();
+    void PlaySummarySound(bool isPerfectScore);
+
+    void UpdateTimerDisplay(string timeText);
+    void PlayTimerWarningSound();
+    void StopTimerWarningSound();
 
     IMultiChoiceQuestionSolverView CreateMultiChoiceSolver();
     ITrueFalseQuestionSolverView CreateTrueFalseSolver();
+}
+
+public interface ISolverQuizItemView
+{
+    string QuizName { set; }
+    event Action OnQuizClicked;
 }
 
 public interface IMultiChoiceQuestionSolverView

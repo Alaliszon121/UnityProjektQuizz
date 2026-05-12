@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -12,11 +12,12 @@ public class QuizSolverMainView : MonoBehaviour, IQuizSolverMainView
     public GameObject SummaryScreen;
 
     [Header("Start Screen UI")]
-    public TMP_Dropdown QuizDropdown;
-    public Button StartQuizButton;
+    public Transform AvailableQuizzesContainer;
+    public GameObject SolverQuizItemPrefab;
 
     [Header("Solving Screen UI")]
     public TMP_Text ProgressIndicator;
+    public TMP_Text TimerText;
     public Transform QuestionContainer;
     public Button NextButton;
     public Button PrevButton;
@@ -24,35 +25,56 @@ public class QuizSolverMainView : MonoBehaviour, IQuizSolverMainView
 
     [Header("Summary Screen UI")]
     public TMP_Text ScoreText;
-    public TMP_Text DetailedReviewText;
+    public TMP_Text TotalTimeText;
+    public Transform SummaryContentContainer;
+    public GameObject SummaryItemPrefab;
+    public ScrollRect SummaryScrollRect;
     public Button ReturnToMenuButton;
+
+    [Header("Audio")]
+    public AudioSource SummaryAudioSource;
+    public AudioSource TimerAudioSource;
+    public AudioClip PerfectScoreClip;
+    public AudioClip MistakeClip;
+    public AudioClip TimerWarningClip;
 
     [Header("Prefabs")]
     public GameObject MultiChoicePrefab;
     public GameObject TrueFalsePrefab;
 
-    public event Action<int> OnQuizSelected;
     public event Action OnNextQuestionClicked;
     public event Action OnPreviousQuestionClicked;
     public event Action OnFinishQuizClicked;
     public event Action OnReturnToMenuClicked;
+    public event Action OnContinueSummaryAnimationRequested;
+    public event Action<float> OnUpdateTick;
 
     private void Awake()
     {
-        StartQuizButton.onClick.AddListener(() => OnQuizSelected?.Invoke(QuizDropdown.value));
         NextButton.onClick.AddListener(() => OnNextQuestionClicked?.Invoke());
         PrevButton.onClick.AddListener(() => OnPreviousQuestionClicked?.Invoke());
         FinishButton.onClick.AddListener(() => OnFinishQuizClicked?.Invoke());
         ReturnToMenuButton.onClick.AddListener(() => OnReturnToMenuClicked?.Invoke());
     }
 
-    public void SetAvailableQuizzes(List<string> quizNames)
+    private void Update()
     {
-        QuizDropdown.ClearOptions();
-        QuizDropdown.AddOptions(quizNames);
+        OnUpdateTick?.Invoke(Time.deltaTime);
     }
 
-    public int GetSelectedQuizIndex() => QuizDropdown.value;
+    public void ClearAvailableQuizzes()
+    {
+        foreach (Transform child in AvailableQuizzesContainer)
+        {
+            Destroy(child.gameObject);
+        }
+    }
+
+    public ISolverQuizItemView CreateQuizItem()
+    {
+        GameObject obj = Instantiate(SolverQuizItemPrefab, AvailableQuizzesContainer);
+        return obj.GetComponent<ISolverQuizItemView>();
+    }
 
     public void ShowStartScreen(bool show) => StartScreen.SetActive(show);
     public void ShowSolvingScreen(bool show) => SolvingScreen.SetActive(show);
@@ -72,21 +94,91 @@ public class QuizSolverMainView : MonoBehaviour, IQuizSolverMainView
         foreach (Transform child in QuestionContainer) Destroy(child.gameObject);
     }
 
-    public void SetSummaryData(string scoreText, string detailedReview)
+    public void PrepareSummaryView(float maxScore, string timeTakenText)
     {
-        ScoreText.text = scoreText;
-        DetailedReviewText.text = detailedReview;
+        ScoreText.text = $"Wynik: 0 / {maxScore}";
+        if (TotalTimeText != null)
+        {
+            TotalTimeText.text = timeTakenText;
+        }
+        foreach (Transform child in SummaryContentContainer) Destroy(child.gameObject);
+        ReturnToMenuButton.gameObject.SetActive(false);
+    }
+
+    public ISummaryItemView CreateSummaryItem()
+    {
+        GameObject obj = Instantiate(SummaryItemPrefab, SummaryContentContainer);
+        ISummaryItemView itemView = obj.GetComponent<ISummaryItemView>();
+
+        itemView.OnItemAnimationFinished += () => OnContinueSummaryAnimationRequested?.Invoke();
+        StartCoroutine(ScrollToBottom());
+
+        return itemView;
+    }
+
+    private IEnumerator ScrollToBottom()
+    {
+        yield return new WaitForEndOfFrame();
+        Canvas.ForceUpdateCanvases();
+        SummaryScrollRect.verticalNormalizedPosition = 0f;
+    }
+
+    public void UpdateCurrentScore(float currentScore, float maxScore)
+    {
+        ScoreText.text = $"Wynik: {currentScore} / {maxScore}";
+    }
+
+    public void OnSummaryAnimationFinished()
+    {
+        ReturnToMenuButton.gameObject.SetActive(true);
+    }
+
+    public void PlaySummarySound(bool isPerfectScore)
+    {
+        if (SummaryAudioSource != null)
+        {
+            AudioClip clipToPlay = isPerfectScore ? PerfectScoreClip : MistakeClip;
+            if (clipToPlay != null)
+            {
+                SummaryAudioSource.PlayOneShot(clipToPlay);
+            }
+        }
+    }
+
+    public void UpdateTimerDisplay(string timeText)
+    {
+        if (TimerText != null)
+        {
+            TimerText.text = timeText;
+        }
+    }
+
+    public void PlayTimerWarningSound()
+    {
+        if (TimerAudioSource != null && TimerWarningClip != null)
+        {
+            TimerAudioSource.clip = TimerWarningClip;
+            TimerAudioSource.Play();
+        }
+    }
+
+    public void StopTimerWarningSound()
+    {
+        if (TimerAudioSource != null && TimerAudioSource.isPlaying)
+        {
+            TimerAudioSource.Stop();
+        }
     }
 
     public IMultiChoiceQuestionSolverView CreateMultiChoiceSolver()
     {
         var obj = Instantiate(MultiChoicePrefab, QuestionContainer);
-        return obj.GetComponent<MultiChoiceQuestionSolverView>();
+        return obj.GetComponent<IMultiChoiceQuestionSolverView>();
     }
 
     public ITrueFalseQuestionSolverView CreateTrueFalseSolver()
     {
         var obj = Instantiate(TrueFalsePrefab, QuestionContainer);
-        return obj.GetComponent<TrueFalseQuestionSolverView>();
+        return obj.GetComponent<ITrueFalseQuestionSolverView>();
     }
 }

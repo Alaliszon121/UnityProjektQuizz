@@ -230,7 +230,7 @@ public class QuizCreatorPresenter
 
         if (_currentQuiz.Questions.Count == 0)
         {
-            errorMessage = "Quiz musi zawieraæ przynajmniej jedno pytanie!";
+            errorMessage = "Quiz musi zawierac przynajmniej jedno pytanie!";
         }
         else
         {
@@ -239,7 +239,7 @@ public class QuizCreatorPresenter
                 var q = _currentQuiz.Questions[i];
                 if (string.IsNullOrWhiteSpace(q.QuestionText))
                 {
-                    errorMessage = $"Pytanie nr {i + 1} nie ma wpisanej treœci!";
+                    errorMessage = $"Pytanie nr {i + 1} nie ma wpisanej tresci!";
                     break;
                 }
 
@@ -247,7 +247,7 @@ public class QuizCreatorPresenter
                 {
                     if (string.IsNullOrWhiteSpace(a.Text))
                     {
-                        errorMessage = $"Pytanie nr {i + 1} zawiera odpowiedŸ bez wpisanej treœci!";
+                        errorMessage = $"Pytanie nr {i + 1} zawiera odpowiedz bez wpisanej tresci!";
                         break;
                     }
                 }
@@ -263,6 +263,8 @@ public class QuizCreatorPresenter
         else
         {
             _repository.SaveQuizToFile(_currentQuiz);
+            RefreshAvailableQuizzes();
+            _mainView.ShowStartScreen(true);
         }
     }
 }
