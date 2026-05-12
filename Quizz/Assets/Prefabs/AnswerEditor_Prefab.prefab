@@ -331,7 +331,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.18039216, g: 0, b: 0.23529413, a: 1}
+  m_Color: {r: 0.10980393, g: 0.16078432, b: 0.22352943, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -594,10 +594,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Wpisz tre\u015B\u0107 odpowiedzi... Wpisz tre\u015B\u0107 odpowiedzi...
-    Wpisz tre\u015B\u0107 odpowiedzi... Wpisz tre\u015B\u0107 odpowiedzi... Wpisz
-    tre\u015B\u0107 odpowiedzi... Wpisz tre\u015B\u0107 odpowiedzi... Wpisz tre\u015B\u0107
-    odpowiedzi... "
+  m_text: "Wpisz tre\u015B\u0107 odpowiedzi..."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 2c92397c31af2a547821633f9e6919ab, type: 2}
   m_sharedMaterial: {fileID: -4874940873276487543, guid: 2c92397c31af2a547821633f9e6919ab, type: 2}
@@ -747,7 +744,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.7607844, g: 0.27450982, b: 0.91372555, a: 1}
+  m_Color: {r: 0.10980393, g: 0.16078432, b: 0.22352943, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
