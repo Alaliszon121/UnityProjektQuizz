@@ -6,8 +6,14 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
-    guid: 8c9cfa26abfee488c85f1582747f6a02
+    path: Assets/Scenes/MainMenu.unity
+    guid: cf70e2a2edf3fa5419b29b98b871c397
+  - enabled: 1
+    path: Assets/Scenes/QuizCreatorScene.unity
+    guid: 7f7528672bd689f44a5b7d8256a468dc
+  - enabled: 1
+    path: Assets/Scenes/QuizSolver.unity
+    guid: e222b789f6af98f4ea56c503941b5171
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0
